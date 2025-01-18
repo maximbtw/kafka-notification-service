@@ -1,0 +1,70 @@
+﻿services:  
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CREATE_TOPICS: "notification:3:1"
+    ports:
+      - "9094:9094"
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/kafka/9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  notification-service-1:
+    image: notification-service:latest
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: "Production"
+    ports:
+      - "5001:5001"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  notification-service-2:
+    image: notification-service:latest
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: "Production"
+    ports:
+      - "5002:5002"
+    depends_on:
+      kafka:
+        condition: service_healthy
+        
+  api:
+    image: api:latest
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: "Production"
+      ASPNETCORE_URLS: "http://0.0.0.0:80"
+    ports:
+      - "80:80"

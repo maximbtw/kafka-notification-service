@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{9C065C25-C0F3-477B-A1EA-6AD38F9B869C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{42BAA684-7E83-4430-9063-336B2133187C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5E2BDE3D-3F83-4C59-B9F9-2756A718815B}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{29932C55-E701-42CE-8CB8-8883AE5AFABD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C065C25-C0F3-477B-A1EA-6AD38F9B869C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C065C25-C0F3-477B-A1EA-6AD38F9B869C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C065C25-C0F3-477B-A1EA-6AD38F9B869C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C065C25-C0F3-477B-A1EA-6AD38F9B869C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42BAA684-7E83-4430-9063-336B2133187C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42BAA684-7E83-4430-9063-336B2133187C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42BAA684-7E83-4430-9063-336B2133187C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42BAA684-7E83-4430-9063-336B2133187C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29932C55-E701-42CE-8CB8-8883AE5AFABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29932C55-E701-42CE-8CB8-8883AE5AFABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29932C55-E701-42CE-8CB8-8883AE5AFABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29932C55-E701-42CE-8CB8-8883AE5AFABD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
