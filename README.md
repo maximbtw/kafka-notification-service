@@ -8,9 +8,13 @@ This project demonstrates a Kafka-based notification service implemented with **
 
 ## Quick Start
 
-1. Clone the repository:
+1. Clone:
+
+   ```bash
    git clone https://github.com/maximbtw/kafka-notification-service.git
    cd kafka-notification-service
+   
+1. Build:
 
-1. Build and start all services using Docker Compose:
+   ```bash
    docker-compose up --build
