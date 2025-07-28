@@ -60,8 +60,8 @@ internal class NotificationConsumer : BackgroundService
             var ackChannel = Channel.CreateUnbounded<ConsumeResult<Ignore, NotificationMessage>>(
                 new UnboundedChannelOptions
                 {
-                    SingleReader = false,
-                    SingleWriter = true
+                    SingleReader = true,
+                    SingleWriter = false
                 });
 
             Task processProduce = ProcessProduce(processChannel.Writer, ackChannel.Writer, ct);
