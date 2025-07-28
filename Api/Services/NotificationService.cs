@@ -11,7 +11,7 @@ internal class NotificationService(NotificationProducer notificationProducer, IO
 {
     private readonly KafkaOptions _kafkaOptions = kafkaOptions.Value;
 
-    public async Task<bool> SendNotificationAsync(SendNotificationRequest request)
+    public async Task<bool> SendNotificationAsync(SendNotificationRequest request, CancellationToken ct)
     {
         var message = new NotificationMessage
         {
@@ -20,7 +20,8 @@ internal class NotificationService(NotificationProducer notificationProducer, IO
             SenderPassword = _kafkaOptions.SenderPassword,
             Subject = request.Subject,
             Body = request.Body,
-            IsBodyHtml = request.IsBodyHtml
+            IsBodyHtml = request.IsBodyHtml,
+            Guid = Guid.NewGuid()
         };
 
        return await notificationProducer.ProduceAsync(_kafkaOptions.NotificationTopic, message);

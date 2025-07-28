@@ -2,5 +2,5 @@
 
 internal interface INotificationService
 {
-    Task<bool> SendNotificationAsync(SendNotificationRequest request);
+    Task<bool> SendNotificationAsync(SendNotificationRequest request, CancellationToken ct);
 }

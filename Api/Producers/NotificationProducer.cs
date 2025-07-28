@@ -18,8 +18,7 @@ internal class NotificationProducer : IDisposable
             RetryBackoffMs = 1000, // время ожидания между попытками, 1 секунда
             RetryBackoffMaxMs = 10000, // максимальное время ожидания, 10 секунд
             SocketTimeoutMs = 5500,
-            MessageTimeoutMs = 10000,
-            EnableIdempotence = true    // Избегание дублирования сообщений
+            MessageTimeoutMs = 10000
         };
 
         _producer = new ProducerBuilder<Null, NotificationMessage>(producerConfig)

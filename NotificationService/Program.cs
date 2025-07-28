@@ -1,5 +1,5 @@
+using NotificationService.Configuration;
 using NotificationService.Consumers;
-using NotificationService.Contracts;
 using NotificationService.Services;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
@@ -13,8 +13,18 @@ builder.ConfigureAppConfiguration((context, conf) =>
 
 builder.ConfigureServices((context, services) =>
 {
-    services.AddSingleton<INotificationSenderService, NotificationSenderService>();
+    var configuration = context.Configuration.GetSection(nameof(ServiceConfiguration)).Get<ServiceConfiguration>()!;
 
+    services.AddSingleton(configuration);
+    services.AddSingleton<INotificationSenderService, NotificationSenderService>();
+    
+    services.AddStackExchangeRedisCache(
+        cacheOptions =>
+        {
+            cacheOptions.Configuration = configuration.DistCacheOptions.RedisUrl;
+            cacheOptions.InstanceName = "dist-cache";
+        }
+    );
     services.AddHostedService<NotificationConsumer>();
 });
 

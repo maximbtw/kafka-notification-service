@@ -1,4 +1,16 @@
-﻿services:  
+﻿services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   zookeeper:
     image: wurstmeister/zookeeper:latest
     container_name: zookeeper
@@ -8,31 +20,71 @@
     ports:
       - "2181:2181"
 
-  kafka:
+  kafka-1:
     image: wurstmeister/kafka:latest
-    container_name: kafka
+    container_name: kafka-1
+    ports:
+      - "9094:9094"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      
       KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,OUTSIDE://localhost:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-    
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CREATE_TOPICS: "notification:3:1"
-    ports:
-      - "9094:9094"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
     depends_on:
       - zookeeper
     healthcheck:
-      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/kafka/9092" ]
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/kafka-1/9092" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      
+
+  kafka-2:
+    image: wurstmeister/kafka:latest
+    container_name: kafka-2
+    ports:
+      - "9095:9094"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9092,OUTSIDE://localhost:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/kafka-2/9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka-3:
+    image: wurstmeister/kafka:latest
+    container_name: kafka-3
+    ports:
+      - "9096:9094"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-3:9092,OUTSIDE://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo > /dev/tcp/kafka-3/9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   notification-service-1:
+    container_name: notification-service-1
     image: notification-service:latest
     build:
       context: .
@@ -42,10 +94,11 @@
     ports:
       - "5001:5001"
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka-1
+      - redis
 
   notification-service-2:
+    container_name: notification-service-2
     image: notification-service:latest
     build:
       context: .
@@ -55,10 +108,25 @@
     ports:
       - "5002:5002"
     depends_on:
-      kafka:
-        condition: service_healthy
-        
+      - kafka-2
+      - redis
+
+  notification-service-3:
+    container_name: notification-service-3
+    image: notification-service:latest
+    build:
+      context: .
+      dockerfile: NotificationService/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: "Production"
+    ports:
+      - "5003:5003"
+    depends_on:
+      - kafka-3
+      - redis
+
   api:
+    container_name: api
     image: api:latest
     build:
       context: .
@@ -67,4 +135,4 @@
       DOTNET_ENVIRONMENT: "Production"
       ASPNETCORE_URLS: "http://0.0.0.0:80"
     ports:
-      - "80:80"
+      - "5000:80"

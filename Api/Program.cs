@@ -31,11 +31,8 @@ builder.Host.ConfigureServices((context, services) =>
 
 WebApplication app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapPost("/send-message",
     async (INotificationService service, [FromBody] SendNotificationRequest request) =>
@@ -48,7 +45,7 @@ app.MapPost("/send-message",
             return Results.BadRequest(validationResults);
         }
         
-        bool result = await service.SendNotificationAsync(request);
+        bool result = await service.SendNotificationAsync(request, new CancellationToken());
 
         return result ? Results.Ok() : Results.Problem("Unexpected error");
     });
@@ -74,7 +71,7 @@ app.MapPost("/activate-message-sender",
             return Results.Ok("Job was inactive and has been reactivated.");
         }
 
-        await MessageSenderScheduler.AddJob(scheduler, options.Value.UpdateIntervalInSeconds);
+        await MessageSenderScheduler.AddJob(scheduler, options.Value.UpdateIntervalInSeconds).ConfigureAwait(false);
         
         return Results.Ok("Job has been added and activated.");
     });

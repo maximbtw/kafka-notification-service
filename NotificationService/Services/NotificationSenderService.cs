@@ -1,16 +1,34 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using NotificationService.Configuration;
 using NotificationService.Contracts;
 
 namespace NotificationService.Services;
 
-internal class NotificationSenderService(IConfiguration configuration) : INotificationSenderService
+internal class NotificationSenderService : INotificationSenderService
 {
-    private readonly string _smtpServer = configuration["EmailOptions:SmtpServer"]!;
-    private readonly int _smtpPort = int.Parse(configuration["EmailOptions:SmtpPort"]!);
+    private readonly ServiceConfiguration _configuration;
+
+    private int _notificationCounter;
+
+    public NotificationSenderService(ServiceConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
 
     public async Task SendNotification(SendNotificationParameters parameters)
     {
+        Interlocked.Increment(ref _notificationCounter);
+        if (_notificationCounter % 1000 == 0)
+        {
+            throw new Exception("Custom exception");
+        }
+        
+        // Some work..
+        await Task.Delay(1000);
+        
+        return;
+        
         var mailMessage = new MailMessage
         {
             From = new MailAddress(parameters.SenderEmail),
@@ -24,7 +42,9 @@ internal class NotificationSenderService(IConfiguration configuration) : INotifi
             mailMessage.To.Add(senderEmail);
         }
 
-        using var smtpClient = new SmtpClient(_smtpServer, _smtpPort);
+        using var smtpClient = new SmtpClient(
+            _configuration.EmailOptions.SmtpServer, 
+            _configuration.EmailOptions.SmtpPort);
 
         smtpClient.Credentials = new NetworkCredential(parameters.SenderEmail, parameters.SenderPassword);
         smtpClient.EnableSsl = true;

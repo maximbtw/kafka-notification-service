@@ -17,24 +17,30 @@ internal class MessageSenderJob(
 
     public async Task Execute(IJobExecutionContext context)
     {
-        try
+        var options = new ParallelOptions { MaxDegreeOfParallelism = _options.MaxParallelism };
+        await Parallel.ForAsync(0, _options.MaxParallelism, options, async (_, ct) =>
         {
-            var request = new SendNotificationRequest
+            for (int j = 0; j < _options.NotificationPerThread; j++)
             {
-                Emails = _options.Emails,
-                Subject = $"Test notification #{_counter}",
-                Body = _options.Body,
-                IsBodyHtml = false
-            };
+                try
+                {
+                    var request = new SendNotificationRequest
+                    {
+                        Emails = _options.Emails,
+                        Subject = $"Test notification #{_counter}",
+                        Body = _options.Body,
+                        IsBodyHtml = false
+                    };
 
-            await notificationService.SendNotificationAsync(request);
+                    await notificationService.SendNotificationAsync(request, ct);
 
-            _counter++;
-
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Error while sending message: {e.Message}");
-        }
+                    Interlocked.Increment(ref _counter);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError($"Error while sending message: {e.Message}");
+                }
+            }
+        });
     }
 }

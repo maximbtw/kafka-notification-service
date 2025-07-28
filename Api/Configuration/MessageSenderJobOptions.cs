@@ -10,4 +10,8 @@ public class MessageSenderJobOptions
     public string Body { get; set; } = string.Empty;
     
     public List<string> Emails { get; set; } = new();
+    
+    public int MaxParallelism { get; set; }
+    
+    public int NotificationPerThread { get; set; }
 }
