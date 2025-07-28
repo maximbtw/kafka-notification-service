@@ -14,7 +14,10 @@ This project demonstrates a Kafka-based notification service implemented with **
    git clone https://github.com/maximbtw/kafka-notification-service.git
    cd kafka-notification-service
    
-1. Build:
+2. Build:
 
    ```bash
    docker-compose up --build
+
+## Access
+- Api: http://localhost:5000
