@@ -143,6 +143,7 @@ internal class KafkaMessageProcessor
             _retryIndex.TryAdd(message.Guid, 1);
         }
         
+        //TODO: Лучше сделать отдельный worker который будет разгребать очередь ретраев
         TimeSpan delay = TimeSpan.FromSeconds(Math.Min(30, Math.Pow(2, retry)));
         _ = Task.Run(async () =>
         {
