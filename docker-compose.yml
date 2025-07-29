@@ -33,6 +33,7 @@
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_CREATE_TOPICS: "notification:3:3"
     depends_on:
       - zookeeper
     healthcheck:
@@ -94,8 +95,14 @@
     ports:
       - "5001:5001"
     depends_on:
-      - kafka-1
-      - redis
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   notification-service-2:
     container_name: notification-service-2
@@ -108,8 +115,14 @@
     ports:
       - "5002:5002"
     depends_on:
-      - kafka-2
-      - redis
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   notification-service-3:
     container_name: notification-service-3
@@ -122,8 +135,14 @@
     ports:
       - "5003:5003"
     depends_on:
-      - kafka-3
-      - redis
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   api:
     container_name: api
